@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
+const router = express.Router();
 const session = require('express-session');
-const passport = require('passport');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const flash = require('connect-flash');
@@ -9,9 +9,6 @@ const cookieParser = require('cookie-parser');
 const app = express();
 require('./models');
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -36,26 +33,29 @@ app.use(flash());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-require('./config/config-passport');
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use('/', require('./routes/api/v1.0'));
+app.use('/api', router)
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html')
+});
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.use((req, res, next) => {
+  const error = new Error('Not found');
+  error.status = 404;
+  next(error);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
   // render the error page
   res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: err,
+  res.json({
+    error: {
+      message: err.message}
   });
 });
 

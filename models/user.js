@@ -13,6 +13,21 @@ const userSchema = new Schema({
     type: String,
     required: [true, 'Password required'],
   },
+  id: {
+    type: String,
+  },
+  firstName: {
+    type: String,
+  },
+  middleName: {
+    type: String,
+  },
+  surName: {
+    type: String,
+  },
+  image: {
+    type: String,
+  },
   token: {
     type: String,
   },
