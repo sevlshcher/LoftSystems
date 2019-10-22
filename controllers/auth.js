@@ -1,13 +1,27 @@
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = mongoose.model('user');
+const Token = mongoose.model('token');
+const authHelper = require('../libs/authHelper');
+const {secret} = require('../config/jwt-config').jwt;
 
-module.exports.signup = (req, res, next) => {
+const updateTokens = (userId) => {
+  const accessToken = authHelper.generateAccessToken(userId);
+  const refreshToken = authHelper.generateRefreshToken();
+
+  return authHelper.replaceDbRefreshToken(refreshToken.id, userId)
+    .then(() => ({
+      accessToken,
+      refreshToken: refreshToken.token
+    }));
+};
+
+const signup = (req, res, next) => {
   const {username, password, firstName, middleName, surName} = req.body;
-  User.find({username})
+  User.findOne({username})
     .exec()
     .then(user => {
-      if(user.length >= 1) {
+      if(user) {
         return res.status(409).json({
           message: 'Username exists'
         });
@@ -35,35 +49,71 @@ module.exports.signup = (req, res, next) => {
     });
 };
 
-module.exports.login = (req, res, next) => {
+const login = (req, res, next) => {
   const {username, password} = req.body;
-  User.find({username})
+  User.findOne({username})
     .exec()
     .then(user => {
-      if(user.length < 1) {
+      if(!user) {
         return res.status(401).json({
           message: 'Username doesn\'t exists'
         });
       }
-      if(!user[0].validPassword(password)) {
+      if(!user.validPassword(password)) {
         return res.status(401).json({
           message: 'Password incorrect'
         });
+      } else {
+        return updateTokens(user._id)
+          .then(tokens => res.status(200).json({
+            message: 'Auth successful',
+            tokens: tokens
+          }));
       }
-      const token = jwt.sign(
-        {
-          username: user[0].username,
-          userId: user[0].id
-        }, process.env.JWT_KEY,
-        {
-          expiresIn: "1h"
-        }
-      );
-      res.status(200).json({
-        message: 'Auth successful',
-        token: token
+    })
+    .catch(err => res.status(500).json({message: err.message}));
+};
+
+const refreshToken = (req, res) => {
+  const {refreshToken} = req.body;
+  let payload;
+  try {
+    payload = jwt.verify(refreshToken, secret);
+    if(payload.type !== 'refresh') {
+      res.status(400).json({
+        message: 'Invalid token!'
       });
-    });
+      return;
+    }
+  } catch (e) {
+    if(e instanceof jwt.TokenExpiredError) {
+      res.status(400).json({
+        message: 'Token expired!'
+      });
+      return;
+    } else if(e instanceof jwt.JsonWebTokenError) {
+      res.status(400).json({
+        message: 'Invalid token!'
+      });
+      return;
+    }
+  }
+  Token.findOne({tokenId: payload.id})
+    .exec()
+    .then(token => {
+      if(token === null) {
+        throw new Error('Invalid token!')
+      }
+      return updateTokens(token.userId);
+    })
+    .then(tokens => res.json(tokens))
+    .catch(err => res.status(400).json({message: err.message}));
+};
+
+module.exports = {
+  signup,
+  login,
+  refreshToken
 };
 
 

@@ -6,10 +6,13 @@ mongoose.Promise = global.Promise;
 mongoose.connect(
   process.env.CONNECT_DB,
   { useNewUrlParser: true,
-    useCreateIndex: true }
+    useCreateIndex: true,
+    useFindAndModify: false }
 );
 
 require('./user');
+require('./token');
+
 mongoose.connection.on('connected', () => {
   console.log(
     'Mongoose connected'

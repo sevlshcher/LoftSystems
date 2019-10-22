@@ -1,12 +1,12 @@
 var express = require('express');
 var router = express.Router();
-const controllers = require('../../../controllers')
+const controllers = require('../../controllers/auth')
 
-router.post('/api/registration', controllers.signup);
+router.post('/registration', controllers.signup);
 
-router.post('/api/login', controllers.login);
+router.post('/login', controllers.login);
 
-// router.post('/api/refresh-token', controllers.token);
+router.post('/refresh-token', controllers.refreshToken);
 
 // router.put('/api/updateUser/:id', controllers.update);
 

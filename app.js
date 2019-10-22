@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const router = express.Router();
 const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
@@ -33,7 +32,7 @@ app.use(flash());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api', router)
+app.use('/api', require('./api/v1.0/auth'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
 });
