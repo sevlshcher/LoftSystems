@@ -33,6 +33,7 @@ app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', require('./api/v1.0/auth'));
+app.use('/api/profile', require('./api/v1.0/profile'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
 });

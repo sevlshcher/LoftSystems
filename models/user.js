@@ -11,9 +11,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password required'],
   },
-  id: {
-    type: String,
-  },
   firstName: {
     type: String,
   },
@@ -26,8 +23,61 @@ const userSchema = new mongoose.Schema({
   image: {
     type: String,
   },
-  token: {
-    type: String,
+  permission: {
+    chat: {
+      C: {
+        type: Boolean,
+        default: true
+      },
+      R: {
+        type: Boolean,
+        default: true
+      },
+      U: {
+        type: Boolean,
+        default: true
+      },
+      D: {
+        type: Boolean,
+        default: true
+      },
+    },
+    news: {
+      C: {
+        type: Boolean,
+        default: false
+      },
+      R: {
+        type: Boolean,
+        default: true
+      },
+      U: {
+        type: Boolean,
+        default: false
+      },
+      D: {
+        type: Boolean,
+        default: false
+      },
+    },
+    settings: {
+      C: {
+        type: Boolean,
+        default: false
+      },
+      R: {
+        type: Boolean,
+        default: false
+      },
+      U: {
+        type: Boolean,
+        default: false
+      },
+      D: {
+        type: Boolean,
+        default: false
+      },
+    },
   },
 });
 
@@ -42,5 +92,13 @@ userSchema.methods.validPassword = function(password) {
 userSchema.methods.setToken = function(token) {
   this.token = token;
 };
+
+userSchema.method('transform', function() {
+  const user = this.toObject();
+  user.id = user._id;
+  delete user._id;
+  delete user.hash;
+  return user;
+})
 
 mongoose.model('user', userSchema);
