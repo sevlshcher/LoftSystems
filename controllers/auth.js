@@ -4,6 +4,7 @@ const User = mongoose.model('user');
 const Token = mongoose.model('token');
 const authHelper = require('../libs/authHelper');
 const {secret, tokens} = require('../config/jwt-config').jwt;
+const serialize = require('../libs/serialize');
 
 const updateTokens = (userId) => {
   const accessToken = authHelper.generateAccessToken(userId);
@@ -33,10 +34,11 @@ exports.signup = (req, res, next) => {
         user
           .save()
           .then(user => {
+            const userSerialize = serialize(user);
             updateTokens(user._id)
               .then(tokens => res.status(200).json({
                 message: 'User created',
-                ...user.transform(),
+                ...userSerialize,
                 ...tokens
               }))
             }
@@ -66,10 +68,11 @@ exports.login = (req, res, next) => {
           message: 'Password incorrect'
         });
       } else {
+        const userSerialize = serialize(user);
         return updateTokens(user._id)
           .then(tokens => res.status(200).json({
             message: 'Auth successful',
-            ...user.transform(),
+            ...userSerialize,
             ...tokens
           }));
       }

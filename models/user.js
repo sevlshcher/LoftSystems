@@ -13,15 +13,19 @@ const userSchema = new mongoose.Schema({
   },
   firstName: {
     type: String,
+    default: null,
   },
   middleName: {
     type: String,
+    default: null,
   },
   surName: {
     type: String,
+    default: null,
   },
   image: {
     type: String,
+    default: null,
   },
   permission: {
     chat: {
@@ -92,13 +96,5 @@ userSchema.methods.validPassword = function(password) {
 userSchema.methods.setToken = function(token) {
   this.token = token;
 };
-
-userSchema.method('transform', function() {
-  const user = this.toObject();
-  user.id = user._id;
-  delete user._id;
-  delete user.hash;
-  return user;
-})
 
 mongoose.model('user', userSchema);

@@ -17,7 +17,9 @@ module.exports = (req, res, next) => {
         message: 'Invalid token!'
       });
       return;
-    }
+    } else {
+      req.user = decoded;
+      next();}
   } catch (e) {
     if(e instanceof jwt.TokenExpiredError) {
       res.status(400).json({
@@ -31,5 +33,4 @@ module.exports = (req, res, next) => {
       return;
     }
   }
-  next();
 };
