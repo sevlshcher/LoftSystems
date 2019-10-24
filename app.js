@@ -36,8 +36,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use('/api', require('./api/v1.0/auth'));
 app.use('/api/profile', require('./api/v1.0/profile'));
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html')
+app.use('*', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html')
 });
 
 // catch 404 and forward to error handler
