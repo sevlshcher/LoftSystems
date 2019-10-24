@@ -1,12 +1,12 @@
 const serialize = user => {
   return {
-    id: user._id,
-    userName: user.userName || '',
     firstName: user.firstName || '',
-    middleName: user.middleName || '',
-    surName: user.surName || '',
+    id: user._id,
     image: user.image || '',
-    permission: user.permission
+    middleName: user.middleName || '',
+    permission: user.permission,
+    surName: user.surName || '',
+    username: user.username || ''
   };
 };
 
