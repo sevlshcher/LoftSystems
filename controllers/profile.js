@@ -12,7 +12,7 @@ exports.getProfile = async (req, res, next) => {
     });
   } else {
     const userSerialize = serialize(user);
-    await res.status(200).json({userSerialize});
+    await res.status(200).json(userSerialize);
   }
 };
 
@@ -53,7 +53,7 @@ exports.updateProfile = async (req, res, next) => {
       };
     }
     const updatedUser = await user.save();
-    res.json(updatedUser);
+    res.json(serialize(updatedUser));
   } catch (e) {
     console.log(e)
     res.status(400).json({message: 'Data update error'});

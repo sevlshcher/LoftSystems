@@ -15,12 +15,8 @@ const newsSchema = new mongoose.Schema(
       required: true,
     },
     user: {
-        firstName: {type: String},
-        id: {type: String},
-        image: {type: String},
-        middleName: {type: String},
-        surName: {type: String},
-        username: {type: String},
+      type: mongoose.Types.ObjectId,
+      ref: 'user'
     },
   }, {versionKey: false}
 );

@@ -1,16 +1,20 @@
 const mongoose = require('mongoose');
 const News = mongoose.model('news');
 const User = mongoose.model('user');
+const serialize = require('../libs/newsSerialize')
 
 function getAllNews(res) {
-  News.find({}, (err, news) => {
-    let items = JSON.parse(JSON.stringify(news));
-    items.forEach(item => item.id = item._id);
-    res.json(items);
-  });
-}
+ 
+    News.find()
+      .populate("user", "firstName image middleName surName username")
+      .then(items => {
+        const news = items.map(item => serialize(item));
+        res.json(news);
+      })
+      .catch(e => res.status(400).json({ message: e.message}));
+  }
 
-exports.getNews = (req, res, next) => {
+exports.getNews =  (req, res, next) => {
   getAllNews(res);
 };
 
@@ -22,18 +26,10 @@ exports.postNews = async (req, res, next) => {
       created_at: Date.now(),
       text: text,
       title: title,
-      user: {
-        firstName: user.firstName,
-        id: user._id,
-        image: user.image,
-        middleName: user.middleName,
-        surName: user.surName,
-        username: user.username,
-    }});
+      user: user.id
+    });
     article.save()
-      .then(article => {
-        getAllNews(res);
-      });
+      .then(article => getAllNews(res))
   } catch (e) {
     console.log(e)
     res.status(400).json({message: 'News Update error'});
