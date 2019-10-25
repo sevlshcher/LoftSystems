@@ -4,11 +4,14 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const flash = require('connect-flash');
+const helmet = require('helmet');
 const bodyparser = require('body-parser');
 const cookieParser = require('cookie-parser');
+
 const app = express();
 require('./models');
 
+app.use(helmet());
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -36,6 +39,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use('/api', require('./api/v1.0/auth'));
 app.use('/api/profile', require('./api/v1.0/profile'));
+app.use('/api/news', require('./api/v1.0/news'));
+app.use('/api/users', require('./api/v1.0/users'));
 app.use('*', (req, res) => {
   res.sendFile(__dirname + '/public/index.html')
 });

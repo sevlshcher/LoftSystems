@@ -19,7 +19,6 @@ exports.getProfile = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     const user = await User.findOne({_id: req.user.userId});
-    console.log(user);
     const {firstName, middleName, surName, oldPassword, newPassword } = req.body;
     if(firstName) {
       user.set({firstName});
@@ -31,7 +30,7 @@ exports.updateProfile = async (req, res, next) => {
       user.set({surName});
     }
     if(req.file) {
-      console.log(req.file, req.file.path);
+      console.log(req.file);
       await jimp.read(req.file.path)
         .then(image => {
           image.resize(270, 270)
@@ -44,10 +43,8 @@ exports.updateProfile = async (req, res, next) => {
         });
     }
     if(newPassword) {
-      console.log(oldPassword, bCrypt.compareSync(oldPassword, user.hash));
       if(bCrypt.compareSync(oldPassword, user.hash)){
-        const hash = bCrypt.hashSync(newPassword, bCrypt.genSaltSync(10), null)
-        console.log(user.hash, hash)
+        const hash = bCrypt.hashSync(newPassword, bCrypt.genSaltSync(10), null);
         user.set({hash});
       } else {
         return res.status(401).json({
@@ -56,7 +53,6 @@ exports.updateProfile = async (req, res, next) => {
       };
     }
     const updatedUser = await user.save();
-    console.log(updatedUser);
     res.json(updatedUser);
   } catch (e) {
     console.log(e)
